@@ -9,6 +9,7 @@ public class ConsoleProgress implements Runnable {
         progress.start();
         Thread.sleep(5000); /* симулируем выполнение параллельной задачи в течение 5 секунд. */
         progress.interrupt();
+        progress.join();
     }
 
     @Override
@@ -19,7 +20,7 @@ public class ConsoleProgress implements Runnable {
                 i = i++ > 2 ? 0 : i;
                 System.out.print("\r load: " + process[i]);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
             }
         }
     }
