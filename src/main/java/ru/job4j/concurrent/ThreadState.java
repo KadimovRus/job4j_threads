@@ -11,12 +11,8 @@ public class ThreadState {
         first.start();
         second.start();
         while (first.getState() != Thread.State.TERMINATED || second.getState() != Thread.State.TERMINATED) {
-            if (first.getState() != Thread.State.TERMINATED) {
-                System.out.printf("%s %s%n", first.getState(), first.getName());
-            }
-            if (second.getState() != Thread.State.TERMINATED) {
-                System.out.printf("%s %s%n", second.getState(), second.getName());
-            }
+            System.out.printf("%s %s%n", first.getState(), first.getName());
+            System.out.printf("%s %s%n", second.getState(), second.getName());
         }
 
         System.out.printf("%s %s%n", first.getState(), first.getName());
