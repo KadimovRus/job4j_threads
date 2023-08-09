@@ -17,7 +17,7 @@ public class ConsoleProgress implements Runnable {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Thread.sleep(500);
-                i = i++ > 2 ? 0 : i;
+                i = i++ < process.length-1 ? i : 0;
                 System.out.print("\r load: " + process[i]);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
