@@ -45,9 +45,7 @@ public class Wget implements Runnable {
         try {
             new URL(url).toURI();
             return true;
-        } catch (URISyntaxException exception) {
-            return false;
-        } catch (MalformedURLException exception) {
+        } catch (URISyntaxException | MalformedURLException exception) {
             return false;
         }
     }
