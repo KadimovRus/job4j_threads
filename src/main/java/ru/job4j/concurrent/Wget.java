@@ -75,7 +75,7 @@ public class Wget implements Runnable {
         }
     }
 
-    private static void validate (String [] args) {
+    private static void validate(String[] args) {
         if (args.length < 3) {
             throw new IllegalArgumentException("Not enough arguments provided. Please provide a URL, download speed and filename");
         }
