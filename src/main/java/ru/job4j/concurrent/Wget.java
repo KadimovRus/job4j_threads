@@ -1,64 +1,103 @@
 package ru.job4j.concurrent;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.file.Files;
 
 public class Wget implements Runnable {
     private final String url;
     private final int speed;
+    private final String fileName;
 
-    public Wget(String url, int speed) {
+    private static final int SECOND = 1000;
+
+    public Wget(String url, int speed, String fileName) {
         this.url = url;
         this.speed = speed;
+        this.fileName = fileName;
     }
 
     @Override
     public void run() {
-        var startAt = System.currentTimeMillis();
-        var file = new File("tmp.xml");
-        try (var in = new URL(this.url).openStream();
-             var out = new FileOutputStream(file)) {
-            System.out.println("Open connection: " + (System.currentTimeMillis() - startAt) + " ms");
-            var dataBuffer = new byte[this.speed];
-            int bytesRead;
-            while ((bytesRead = in.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-                var downloadAt = System.nanoTime();
-                out.write(dataBuffer, 0, bytesRead);
-                System.out.println("Read " + this.speed + " bytes : " + (System.nanoTime() - downloadAt) + " nano.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!urlValidator(this.url)) {
+            System.out.println("Invalid URL");
+            return;
         }
+
+        File file = new File(this.fileName);
+        if (file.exists()) {
+            System.out.println("File already exists");
+            return;
+        }
+
         try {
-            System.out.println(Files.size(file.toPath()) + " bytes");
+            downloadFile(file);
         } catch (IOException e) {
-            Thread.currentThread().interrupt();
+            System.err.println("An error occurred while downloading the file: " + e.getMessage());
         }
     }
 
-    public static boolean urlValidator(String url) {
+    private void downloadFile(File file) throws IOException {
+        try (BufferedInputStream in = new BufferedInputStream(new URL(this.url).openStream());
+             FileOutputStream out = new FileOutputStream(file)) {
+            var dataBuffer = new byte[512];
+            int bytesRead;
+            var timeDownload = 0;
+            int pause = speed / SECOND;
+            while ((bytesRead = in.read(dataBuffer, 0, dataBuffer.length)) != -1) {
+                var downloadAt = System.nanoTime();
+                out.write(dataBuffer, 0, bytesRead);
+                timeDownload = (int) (System.nanoTime() - downloadAt);
+                System.out.println("Read 512 bytes : " + timeDownload + " nano.");
+                Thread.sleep(pause);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(Files.size(file.toPath()) + " bytes");
+    }
+
+    private static boolean urlValidator(String url) {
         try {
-            new URL(url).toURI();
-            return true;
-        } catch (URISyntaxException | MalformedURLException exception) {
+            HttpURLConnection.setFollowRedirects(false);
+            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+            con.setRequestMethod("HEAD");
+            return (con.getResponseCode() == HttpURLConnection.HTTP_OK);
+        } catch (Exception e) {
+            System.err.println("An error occurred while validating the URL: " + e.getMessage());
             return false;
         }
     }
 
+    private static void validate (String [] args) {
+        if (args.length < 3) {
+            throw new IllegalArgumentException("Not enough arguments provided. Please provide a URL, download speed and filename");
+        }
+        try {
+            Integer.parseInt(args[1]);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Speed provided is not valid integer number");
+        }
+    }
+
     public static void main(String[] args) throws InterruptedException {
+        try {
+            validate(args);
+        } catch (IllegalArgumentException e) {
+            System.err.println(e.getMessage());
+            return;
+        }
         String url = args[0];
         int speed = Integer.parseInt(args[1]);
-        if (urlValidator(url)) {
-            Thread wget = new Thread(new Wget(url, speed));
-            wget.start();
-            wget.join();
-        } else {
-            System.out.println("Invalid URL: " + url);
-        }
+        String fileName = args[2];
+        Thread wget = new Thread(new Wget(url, speed, fileName));
+        wget.start();
+        wget.join();
     }
 }
