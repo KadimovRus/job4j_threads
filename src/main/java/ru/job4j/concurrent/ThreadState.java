@@ -14,7 +14,6 @@ public class ThreadState {
             System.out.printf("%s %s%n", first.getState(), first.getName());
             System.out.printf("%s %s%n", second.getState(), second.getName());
         }
-
         System.out.printf("%s %s%n", first.getState(), first.getName());
         System.out.printf("%s %s%n", second.getState(), second.getName());
         System.out.println("Работа завершена");
