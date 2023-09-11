@@ -56,7 +56,7 @@ public class Wget implements Runnable {
                 totalBytesRead += bytesRead;
                 totalTime += timeDownload;
                 if (totalBytesRead >= speed) {
-                    elapsedSeconds = (double)totalTime / 1_0000_000_000.0;
+                    elapsedSeconds = (double) totalTime / 1_0000_000_000.0;
                 }
                 if (elapsedSeconds < 1) {
                     long sleepMillis = (long) elapsedSeconds * 1000;
