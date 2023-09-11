@@ -13,8 +13,6 @@ public class Wget implements Runnable {
     private final int speed;
     private final String fileName;
 
-    private static final int SECOND = 1000;
-
     public Wget(String url, int speed, String fileName) {
         this.url = url;
         this.speed = speed;
@@ -47,13 +45,25 @@ public class Wget implements Runnable {
             var dataBuffer = new byte[512];
             int bytesRead;
             var timeDownload = 0;
-            int pause = speed / SECOND;
+            var downloadAt = System.nanoTime();
+            int totalBytesRead = 0;
+            int totalTime = 0;
+            double elapsedSeconds = 0;
             while ((bytesRead = in.read(dataBuffer, 0, dataBuffer.length)) != -1) {
-                var downloadAt = System.nanoTime();
                 out.write(dataBuffer, 0, bytesRead);
-                timeDownload = (int) (System.nanoTime() - downloadAt);
+                timeDownload = (int) (System.nanoTime()  - downloadAt);
                 System.out.println("Read 512 bytes : " + timeDownload + " nano.");
-                Thread.sleep(pause);
+                totalBytesRead += bytesRead;
+                totalTime += timeDownload;
+                if (totalBytesRead >= speed) {
+                    elapsedSeconds = (double)totalTime / 1_0000_000_000.0;
+                }
+                if (elapsedSeconds < 1) {
+                    long sleepMillis = (long) elapsedSeconds * 1000;
+                    Thread.sleep(sleepMillis);
+                    totalTime = 0;
+                    totalBytesRead = 0;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
