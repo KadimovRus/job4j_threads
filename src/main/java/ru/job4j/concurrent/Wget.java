@@ -44,25 +44,22 @@ public class Wget implements Runnable {
              FileOutputStream out = new FileOutputStream(file)) {
             var dataBuffer = new byte[512];
             int bytesRead;
-            var timeDownload = 0;
-            var downloadAt = System.nanoTime();
-            int totalBytesRead = 0;
-            int totalTime = 0;
-            double elapsedSeconds = 0;
+            var downloadAt = System.currentTimeMillis();
+            System.out.println("Open connection: " + (System.currentTimeMillis() - downloadAt) + " ms");
+            var totalBytesRead = 0;
             while ((bytesRead = in.read(dataBuffer, 0, dataBuffer.length)) != -1) {
                 out.write(dataBuffer, 0, bytesRead);
-                timeDownload = (int) (System.nanoTime()  - downloadAt);
+                var timeDownload = System.nanoTime()  - downloadAt;
                 System.out.println("Read 512 bytes : " + timeDownload + " nano.");
                 totalBytesRead += bytesRead;
-                totalTime += timeDownload;
                 if (totalBytesRead >= speed) {
-                    elapsedSeconds = (double) totalTime / 1_0000_000_000.0;
-                }
-                if (elapsedSeconds < 1) {
-                    long sleepMillis = (long) elapsedSeconds * 1000;
-                    Thread.sleep(sleepMillis);
-                    totalTime = 0;
+                    var elipseTime = totalBytesRead * 1_000_000L / timeDownload;
+                    System.out.println(elipseTime);
+                    if (elipseTime >= 0) {
+                        Thread.sleep(elipseTime);
+                    }
                     totalBytesRead = 0;
+                    downloadAt = System.currentTimeMillis();
                 }
             }
         } catch (IOException e) {
