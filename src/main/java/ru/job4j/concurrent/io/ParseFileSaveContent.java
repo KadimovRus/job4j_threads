@@ -1,4 +1,4 @@
-package ru.job4j.concurrent;
+package ru.job4j.concurrent.io;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -12,7 +12,7 @@ public final class ParseFileSaveContent {
         this.file = file;
     }
 
-    public void saveContent(String content) throws IOException {
+    public synchronized void saveContent(String content) throws IOException {
         try (
                 OutputStream o = new FileOutputStream(file);) {
             for (int i = 0; i < content.length(); i += 1) {

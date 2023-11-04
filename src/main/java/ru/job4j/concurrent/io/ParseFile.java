@@ -1,9 +1,12 @@
-package ru.job4j.concurrent;
+package ru.job4j.concurrent.io;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.function.Predicate;
 
-public final class ParseFile implements GetContent {
+public final class ParseFile<T> implements GetContent<T> {
     private final File file;
 
     public ParseFile(File file) {
@@ -11,13 +14,13 @@ public final class ParseFile implements GetContent {
     }
 
     @Override
-    public String content(Predicate<Character> filter) throws FileNotFoundException {
+    public synchronized String content(Predicate<T> filter) {
         try (InputStream i = new FileInputStream(file)) {
             StringBuilder output = new StringBuilder();
-            int data;
-            while ((data = i.read()) > 0) {
-                if (filter.test((char) data)) {
-                    output.append((char) data);
+            Integer data;
+            while ((data = i.read()) != 0) {
+                if (filter.test((T) data)) {
+                    output.append(data);
                 }
             }
             return output.toString();
