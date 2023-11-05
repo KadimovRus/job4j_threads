@@ -8,7 +8,7 @@ public class AccountStorage {
     private final Map<Integer, Account> accounts = new ConcurrentHashMap<>();
 
     public boolean add(Account account) {
-        return accounts.putIfAbsent(account.id(), account) != null;
+        return accounts.putIfAbsent(account.id(), account) == null;
     }
 
     public boolean update(Account account) {
