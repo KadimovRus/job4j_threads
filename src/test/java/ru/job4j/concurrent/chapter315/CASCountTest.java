@@ -38,6 +38,6 @@ public class CASCountTest {
         service.shutdown();
         service.awaitTermination(60, TimeUnit.SECONDS);
 
-        assertEquals(threadsNum * iterations, counter.get());
+        assertEquals(1000, counter.get());
     }
 }
