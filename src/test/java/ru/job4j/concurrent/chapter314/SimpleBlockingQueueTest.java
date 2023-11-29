@@ -3,6 +3,8 @@ package ru.job4j.concurrent.chapter314;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.IntStream;
 
@@ -12,7 +14,8 @@ class SimpleBlockingQueueTest {
 
     @Test
     public void test() {
-        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
+        List<Thread> threads = new LinkedList<>();
+        SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(5);
         Thread producer = new Thread(() -> {
             for (int i = 0; i < 5; i++) {
                 try {
@@ -40,7 +43,8 @@ class SimpleBlockingQueueTest {
     @Test
     public void whenFetchAllThenGetIt() throws InterruptedException {
         final CopyOnWriteArrayList<Integer> buffer = new CopyOnWriteArrayList<>();
-        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>();
+        List<Thread> threads = new LinkedList<>();
+        final SimpleBlockingQueue<Integer> queue = new SimpleBlockingQueue<>(5);
         Thread producer = new Thread(
                 () -> {
                     IntStream.range(0, 5).forEach(
