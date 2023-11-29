@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.BiFunction;
 import java.util.stream.Stream;
 
 public class Cache {
@@ -16,17 +15,15 @@ public class Cache {
 
     public boolean update(Base model) throws OptimisticException {
 
-        memory.computeIfPresent(
+        return  memory.computeIfPresent(
                 model.id(),
                 (key, value) -> {
-                    Base baseTemp = new Base(model.id(), model.name(), model.version() + 1);
-                    if (value.version() != baseTemp.version() - 1) {
+                    if (value.version() != model.version()) {
                         throw new OptimisticException("Throw Exception in Thread");
                     }
-                    return baseTemp;
+                    return new Base(model.id(), model.name(), model.version() + 1);
                 }
-        );
-        return true;
+        ) == null;
     }
 
     public void delete(int id) {
@@ -34,8 +31,6 @@ public class Cache {
     }
 
     public Optional<Base> findById(int id) {
-        return Stream.of(memory.get(id))
-                .filter(Objects::nonNull)
-                .findFirst();
+        return Stream.ofNullable(memory.get(id)).findFirst();
     }
 }
