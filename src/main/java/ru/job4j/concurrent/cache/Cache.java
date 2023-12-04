@@ -23,7 +23,7 @@ public class Cache {
                     }
                     return new Base(model.id(), model.name(), model.version() + 1);
                 }
-        ) == null;
+        ) != null;
     }
 
     public void delete(int id) {
