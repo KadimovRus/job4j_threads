@@ -8,14 +8,14 @@ import java.util.List;
 public class ThreadPool {
     private final List<Thread> threads = new LinkedList<>();
     private final SimpleBlockingQueue<Runnable> tasks = new SimpleBlockingQueue<>(5);
-    private final int size = Runtime.getRuntime().availableProcessors();
+    private static final int SIZE = Runtime.getRuntime().availableProcessors();
 
     public ThreadPool() {
-        for (int i = 0; i < size; i++) {
+        for (int i = 0; i < SIZE; i++) {
             Thread thread = new Thread(() -> {
                 try {
                     while (!Thread.currentThread().isInterrupted()) {
-                        Runnable task = tasks.poll(); task.run();
+                        tasks.poll().run();
                     }
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
