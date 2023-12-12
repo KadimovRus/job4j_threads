@@ -18,20 +18,14 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
     }
 
     public static <T> Integer find(T[] array, T value) {
-        ForkJoinPool pool = new ForkJoinPool();
-        ParallelSearch task = new ParallelSearch(array, 0, array.length, value);
-        Integer result = (Integer) pool.invoke(task);
-        return result;
+        return  (Integer) new ForkJoinPool()
+                .invoke(new ParallelSearch(array, 0, array.length, value));
     }
 
     @Override
     protected Integer compute() {
         if (to - from < 10) {
-            Integer i = getIndexForTarget();
-            if (i != null) {
-                return i;
-            }
-            return -1;
+            return getIndexForTarget();
         }
         int mid = (from + to) / 2;
         ParallelSearch leftTask = new ParallelSearch(array, from, mid, target);
@@ -48,15 +42,14 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
                 return i;
             }
         }
-        return null;
+        return -1;
     }
 
     public static void main(String[] args) {
         Integer[] array = {1, 2, 3, 4, 5, 6, 7, 8, 9, 410, 31, 32, 23, 45, 35, 65, 76, 81, 95, 104, 14, 24, 34, 44, 52, 64, 71, 81, 66, 160};
         int target = 34;
-        ForkJoinPool pool = new ForkJoinPool();
-        ParallelSearch task = new ParallelSearch(array, 0, array.length, target);
-        Integer result = (Integer) pool.invoke(task);
+        Integer result = (Integer) new ForkJoinPool()
+                .invoke(new ParallelSearch(array, 0, array.length, target));
         System.out.println("Target element is at index " + result);
     }
 
