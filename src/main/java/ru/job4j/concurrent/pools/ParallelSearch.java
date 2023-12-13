@@ -19,7 +19,7 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
 
     public static <T> Integer find(T[] array, T value) {
         return  (Integer) new ForkJoinPool()
-                .invoke(new ParallelSearch(array, 0, array.length, value));
+                .invoke(new ParallelSearch<>(array, 0, array.length, value));
     }
 
     @Override
@@ -28,12 +28,12 @@ public class ParallelSearch<T> extends RecursiveTask<Integer> {
             return getIndexForTarget();
         }
         int mid = (from + to) / 2;
-        ParallelSearch leftTask = new ParallelSearch(array, from, mid, target);
-        ParallelSearch rightTask = new ParallelSearch(array, mid + 1, to, target);
+        ParallelSearch<T> leftTask = new ParallelSearch<>(array, from, mid, target);
+        ParallelSearch<T> rightTask = new ParallelSearch<>(array, mid + 1, to, target);
 
         leftTask.fork();
         rightTask.fork();
-        return Math.max((Integer) leftTask.join(), (Integer) rightTask.join());
+        return Math.max(leftTask.join(), rightTask.join());
     }
 
     private Integer getIndexForTarget() {
